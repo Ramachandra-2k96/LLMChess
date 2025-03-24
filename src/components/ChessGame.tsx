@@ -82,17 +82,17 @@ const ChessGame: React.FC = () => {
       newBoard[from.row][from.col] = null;
     }
 
-    // Handle captured pieces
-    if (capturedPiece) {
-      const newCapturedPieces = {
-        ...gameState.capturedPieces,
-        [piece.color]: [...gameState.capturedPieces[piece.color], capturedPiece]
-      };
-      setGameState(prev => ({ ...prev, capturedPieces: newCapturedPieces }));
-    }
-
     // Update game state
     const nextTurn: Color = gameState.currentTurn === 'white' ? 'black' : 'white';
+    
+    // Handle captured pieces
+    const newCapturedPieces = { ...gameState.capturedPieces };
+    if (capturedPiece) {
+      const capturedBy = piece.color;
+      const oppositeColor = capturedBy === 'white' ? 'black' : 'white';
+      newCapturedPieces[oppositeColor] = [...newCapturedPieces[oppositeColor], capturedPiece];
+    }
+
     const newGameState: GameState = {
       ...gameState,
       board: newBoard,
@@ -101,7 +101,8 @@ const ChessGame: React.FC = () => {
       isCheck: !isPromotion && isKingInCheck(newBoard, nextTurn),
       isCheckmate: !isPromotion && isCheckmate(newBoard, nextTurn),
       possibleMoves: [],
-      selectedPiece: null
+      selectedPiece: null,
+      capturedPieces: newCapturedPieces
     };
 
     setGameState(newGameState);

@@ -40,14 +40,16 @@
 
 .gameLayout {
   display: grid;
-  grid-template-columns: 1fr 300px;
+  grid-template-columns: minmax(0, 1fr) 300px;
   gap: 2rem;
   align-items: start;
 }
 
 .boardContainer {
-  display: flex;
-  justify-content: center;
+  width: 100%;
+  max-width: 800px;
+  margin: 0 auto;
+  aspect-ratio: 1;
   position: relative;
 }
 
@@ -105,32 +107,30 @@
 @keyframes fadeIn {
   from {
     opacity: 0;
-    transform: translateY(-10px);
   }
   to {
     opacity: 1;
-    transform: translateY(0);
   }
 }
 
-@media (max-width: 1200px) {
+@media (max-width: 1024px) {
   .gameLayout {
     grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+
+  .boardContainer {
+    max-width: 600px;
   }
 }
 
-@media (max-width: 800px) {
+@media (max-width: 768px) {
   .gameContainer {
     padding: 1rem;
-    margin: 1rem;
   }
 
-  .gameLayout {
-    gap: 1rem;
-  }
-
-  .gameInfo h2 {
-    font-size: 1.5rem;
+  .boardContainer {
+    max-width: 100%;
   }
 
   .promotionOption {
@@ -140,19 +140,9 @@
   }
 }
 
-@media (max-width: 600px) {
+@media (max-width: 480px) {
   .gameContainer {
     padding: 0.5rem;
-    margin: 0.5rem;
-  }
-
-  .gameInfo h2 {
-    font-size: 1.2rem;
-  }
-
-  .checkWarning,
-  .checkmateWarning {
-    font-size: 1rem;
   }
 
   .promotionOption {

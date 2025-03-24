@@ -5,6 +5,8 @@
   color: white;
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
   border: 1px solid rgba(255, 255, 255, 0.1);
+  width: 100%;
+  max-width: 300px;
 }
 
 .currentTurn {
@@ -51,7 +53,7 @@
 .pieces {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.8rem;
+  gap: 0.5rem;
   align-items: center;
   min-height: 40px;
   padding: 0.5rem;
@@ -64,10 +66,26 @@
   transition: transform 0.2s;
   cursor: default;
   text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+  line-height: 1;
+}
+
+.piece.white {
+  color: #fff;
+}
+
+.piece.black {
+  color: #000;
+  text-shadow: 1px 1px 2px rgba(255, 255, 255, 0.5);
 }
 
 .piece:hover {
   transform: scale(1.2);
+}
+
+.emptyMessage {
+  color: rgba(255, 255, 255, 0.5);
+  font-size: 0.9rem;
+  font-style: italic;
 }
 
 .advantage {
@@ -104,81 +122,37 @@
   padding-right: 0.5rem;
 }
 
-.moves::-webkit-scrollbar {
-  width: 6px;
-}
-
-.moves::-webkit-scrollbar-track {
-  background: rgba(0, 0, 0, 0.1);
-  border-radius: 3px;
-}
-
-.moves::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.2);
-  border-radius: 3px;
-}
-
-.movePair {
+.move {
   display: flex;
-  gap: 1rem;
-  padding: 0.5rem;
-  background: rgba(0, 0, 0, 0.2);
-  border-radius: 4px;
-  font-family: monospace;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.9rem;
 }
 
 .moveNumber {
-  color: #95a5a6;
-  min-width: 24px;
+  color: rgba(255, 255, 255, 0.6);
+  min-width: 1.5rem;
 }
 
-.move {
-  color: #ecf0f1;
+.moveNotation {
+  font-family: monospace;
+}
+
+@media (max-width: 768px) {
+  .gameInfo {
+    max-width: 100%;
+  }
+
+  .pieces {
+    justify-content: center;
+  }
 }
 
 @keyframes glow {
-  from {
+  0% {
     box-shadow: 0 4px 12px rgba(52, 152, 219, 0.2);
   }
-  to {
-    box-shadow: 0 4px 20px rgba(52, 152, 219, 0.4);
-  }
-}
-
-@media (max-width: 800px) {
-  .gameInfo {
-    padding: 1rem;
-  }
-
-  .currentTurn {
-    font-size: 1.1rem;
-    padding: 0.8rem;
-  }
-
-  .piece {
-    font-size: 1.2rem;
-  }
-
-  .moves {
-    max-height: 150px;
-  }
-}
-
-@media (max-width: 600px) {
-  .gameInfo {
-    padding: 0.8rem;
-  }
-
-  .currentTurn {
-    font-size: 1rem;
-    padding: 0.6rem;
-  }
-
-  .piece {
-    font-size: 1.1rem;
-  }
-
-  .moves {
-    max-height: 120px;
+  100% {
+    box-shadow: 0 4px 24px rgba(52, 152, 219, 0.4);
   }
 } 

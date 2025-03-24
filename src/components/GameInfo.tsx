@@ -24,18 +24,6 @@ const GameInfo: React.FC<GameInfoProps> = ({ moveHistory, capturedPieces, curren
     return symbols[piece.type][piece.color];
   };
 
-  const getMoveNotation = (move: Move): string => {
-    const pieceSymbol = move.piece.type === PieceType.Pawn ? '' : getPieceSymbol(move.piece);
-    const captureSymbol = move.capturedPiece ? 'x' : '';
-    const fileNames = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'];
-    const toSquare = `${fileNames[move.to.col]}${8 - move.to.row}`;
-    const fromSquare = move.piece.type === PieceType.Pawn && captureSymbol ? 
-                      fileNames[move.from.col] : '';
-    const promotionSymbol = move.promotion ? `=${getPieceSymbol({ ...move.piece, type: move.promotion })}` : '';
-
-    return `${pieceSymbol}${fromSquare}${captureSymbol}${toSquare}${promotionSymbol}`;
-  };
-
   const calculateMaterialAdvantage = (pieces: Piece[]): number => {
     const values: Record<PieceType, number> = {
       [PieceType.Pawn]: 1,
@@ -52,6 +40,18 @@ const GameInfo: React.FC<GameInfoProps> = ({ moveHistory, capturedPieces, curren
   const blackMaterial = calculateMaterialAdvantage(capturedPieces.black);
   const materialAdvantage = whiteMaterial - blackMaterial;
 
+  const sortPieces = (pieces: Piece[]): Piece[] => {
+    const pieceValues: Record<PieceType, number> = {
+      [PieceType.Queen]: 5,
+      [PieceType.Rook]: 4,
+      [PieceType.Bishop]: 3,
+      [PieceType.Knight]: 2,
+      [PieceType.Pawn]: 1,
+      [PieceType.King]: 0
+    };
+    return [...pieces].sort((a, b) => pieceValues[b.type] - pieceValues[a.type]);
+  };
+
   return (
     <div className={styles.gameInfo}>
       <div className={styles.currentTurn}>
@@ -63,28 +63,31 @@ const GameInfo: React.FC<GameInfoProps> = ({ moveHistory, capturedPieces, curren
           <div className={styles.capturedSection}>
             <h3>White Captured</h3>
             <div className={styles.pieces}>
-              {capturedPieces.white
-                .sort((a, b) => calculateMaterialAdvantage([b]) - calculateMaterialAdvantage([a]))
-                .map((piece, index) => (
-                  <span key={index} className={styles.piece} title={piece.type}>
-                    {getPieceSymbol(piece)}
-                  </span>
-                ))}
+              {sortPieces(capturedPieces.white).map((piece, index) => (
+                <span key={index} className={`${styles.piece} ${styles.white}`} title={piece.type}>
+                  {getPieceSymbol(piece)}
+                </span>
+              ))}
+              {capturedPieces.white.length === 0 && (
+                <span className={styles.emptyMessage}>No pieces captured</span>
+              )}
             </div>
             {materialAdvantage > 0 && (
               <div className={styles.advantage}>+{materialAdvantage}</div>
             )}
           </div>
+          
           <div className={styles.capturedSection}>
             <h3>Black Captured</h3>
             <div className={styles.pieces}>
-              {capturedPieces.black
-                .sort((a, b) => calculateMaterialAdvantage([b]) - calculateMaterialAdvantage([a]))
-                .map((piece, index) => (
-                  <span key={index} className={styles.piece} title={piece.type}>
-                    {getPieceSymbol(piece)}
-                  </span>
-                ))}
+              {sortPieces(capturedPieces.black).map((piece, index) => (
+                <span key={index} className={`${styles.piece} ${styles.black}`} title={piece.type}>
+                  {getPieceSymbol(piece)}
+                </span>
+              ))}
+              {capturedPieces.black.length === 0 && (
+                <span className={styles.emptyMessage}>No pieces captured</span>
+              )}
             </div>
             {materialAdvantage < 0 && (
               <div className={styles.advantage}>+{-materialAdvantage}</div>
@@ -95,19 +98,17 @@ const GameInfo: React.FC<GameInfoProps> = ({ moveHistory, capturedPieces, curren
         <div className={styles.moveHistory}>
           <h3>Move History</h3>
           <div className={styles.moves}>
-            {Array.from({ length: Math.ceil(moveHistory.length / 2) }).map((_, index) => {
-              const whiteMove = moveHistory[index * 2];
-              const blackMove = moveHistory[index * 2 + 1];
-              return (
-                <div key={index} className={styles.movePair}>
-                  <span className={styles.moveNumber}>{index + 1}.</span>
-                  <span className={styles.move}>{getMoveNotation(whiteMove)}</span>
-                  {blackMove && (
-                    <span className={styles.move}>{getMoveNotation(blackMove)}</span>
-                  )}
-                </div>
-              );
-            })}
+            {moveHistory.map((move, index) => (
+              <div key={index} className={styles.move}>
+                {index % 2 === 0 && <span className={styles.moveNumber}>{Math.floor(index / 2) + 1}.</span>}
+                <span className={styles.moveNotation}>
+                  {getPieceSymbol(move.piece)}
+                  {move.capturedPiece ? 'x' : ''}
+                  {String.fromCharCode(97 + move.to.col)}
+                  {8 - move.to.row}
+                </span>
+              </div>
+            ))}
           </div>
         </div>
       </div>
