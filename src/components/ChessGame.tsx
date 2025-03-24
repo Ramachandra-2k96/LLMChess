@@ -1,6 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { GameState, Move, Position, Color, PieceType, Piece } from '../types/chess';
-import { initializeBoard, isKingInCheck, isCheckmate } from '../utils/chessLogic';
+import { 
+  initializeBoard, 
+  isKingInCheck, 
+  isCheckmate,
+  isStalemate,
+  isInsufficientMaterial,
+  generateSAN
+} from '../utils/chessLogic';
 import { getAIMove } from '../utils/ai';
 import ChessBoard from './ChessBoard';
 import GameInfo from './GameInfo';
@@ -18,7 +25,9 @@ const ChessGame: React.FC = () => {
     capturedPieces: {
       white: [],
       black: []
-    }
+    },
+    halfMoveClock: 0,
+    fullMoveNumber: 1
   });
 
   const [promotionChoice, setPromotionChoice] = useState<{
@@ -64,6 +73,33 @@ const ChessGame: React.FC = () => {
 
     const newBoard = gameState.board.map(row => [...row]);
 
+    // Check for special moves
+    const isCastling = piece.type === PieceType.King && Math.abs(to.col - from.col) === 2;
+    const isEnPassant = piece.type === PieceType.Pawn && 
+                       Math.abs(to.col - from.col) === 1 && 
+                       !capturedPiece;
+
+    // Handle castling
+    if (isCastling) {
+      const isKingside = to.col > from.col;
+      const rookFromCol = isKingside ? 7 : 0;
+      const rookToCol = isKingside ? to.col - 1 : to.col + 1;
+      const rook = newBoard[from.row][rookFromCol];
+      
+      if (rook) {
+        newBoard[from.row][rookToCol] = { ...rook, hasMoved: true };
+        newBoard[from.row][rookFromCol] = null;
+      }
+    }
+
+    // Handle en passant
+    if (isEnPassant) {
+      const capturedPawnRow = from.row;
+      const capturedPawnCol = to.col;
+      move.capturedPiece = newBoard[capturedPawnRow][capturedPawnCol];
+      newBoard[capturedPawnRow][capturedPawnCol] = null;
+    }
+
     // Check for pawn promotion
     const isPromotion = piece.type === PieceType.Pawn && 
                        ((piece.color === 'white' && to.row === 0) || 
@@ -77,7 +113,8 @@ const ChessGame: React.FC = () => {
       // Update piece position
       newBoard[to.row][to.col] = {
         ...piece,
-        hasMoved: true
+        hasMoved: true,
+        canBeEnPassant: piece.type === PieceType.Pawn && Math.abs(to.row - from.row) === 2
       };
       newBoard[from.row][from.col] = null;
     }
@@ -87,11 +124,14 @@ const ChessGame: React.FC = () => {
     
     // Handle captured pieces
     const newCapturedPieces = { ...gameState.capturedPieces };
-    if (capturedPiece) {
+    if (move.capturedPiece) {
       const capturedBy = piece.color;
       const oppositeColor = capturedBy === 'white' ? 'black' : 'white';
-      newCapturedPieces[oppositeColor] = [...newCapturedPieces[oppositeColor], capturedPiece];
+      newCapturedPieces[oppositeColor] = [...newCapturedPieces[oppositeColor], move.capturedPiece];
     }
+
+    // Generate SAN notation
+    move.notation = generateSAN(move, newBoard);
 
     const newGameState: GameState = {
       ...gameState,
@@ -102,7 +142,10 @@ const ChessGame: React.FC = () => {
       isCheckmate: !isPromotion && isCheckmate(newBoard, nextTurn),
       possibleMoves: [],
       selectedPiece: null,
-      capturedPieces: newCapturedPieces
+      capturedPieces: newCapturedPieces,
+      lastMove: move,
+      halfMoveClock: (piece.type === PieceType.Pawn || move.capturedPiece) ? 0 : gameState.halfMoveClock + 1,
+      fullMoveNumber: nextTurn === 'white' ? gameState.fullMoveNumber + 1 : gameState.fullMoveNumber
     };
 
     setGameState(newGameState);
@@ -110,6 +153,12 @@ const ChessGame: React.FC = () => {
     // Handle game end
     if (newGameState.isCheckmate) {
       alert(`${gameState.currentTurn === 'white' ? 'White' : 'Black'} wins!`);
+    } else if (isStalemate(newBoard, nextTurn)) {
+      alert('Stalemate! The game is a draw.');
+    } else if (isInsufficientMaterial(newBoard)) {
+      alert('Insufficient material! The game is a draw.');
+    } else if (newGameState.halfMoveClock >= 50) {
+      alert('50-move rule! The game is a draw.');
     }
   };
 

@@ -13,6 +13,7 @@ export interface Piece {
   type: PieceType;
   color: Color;
   hasMoved?: boolean;
+  canBeEnPassant?: boolean;
 }
 
 export interface Position {
@@ -43,6 +44,9 @@ export interface GameState {
     white: Piece[];
     black: Piece[];
   };
+  lastMove?: Move;
+  halfMoveClock: number;
+  fullMoveNumber: number;
 }
 
 export interface BettingState {

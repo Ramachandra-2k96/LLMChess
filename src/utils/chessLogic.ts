@@ -75,7 +75,8 @@ const wouldMoveExposeKing = (
 const getBasicMoves = (
   board: (Piece | null)[][],
   position: Position,
-  piece: Piece
+  piece: Piece,
+  lastMove?: Move
 ): Position[] => {
   const moves: Position[] = [];
   const { row, col } = position;
@@ -96,14 +97,24 @@ const getBasicMoves = (
         }
       }
 
-      // Captures
+      // Captures and En Passant
       [-1, 1].forEach(offset => {
         const targetCol = col + offset;
         const targetRow = row + direction;
         if (targetRow >= 0 && targetRow < BOARD_SIZE && 
-            targetCol >= 0 && targetCol < BOARD_SIZE &&
-            board[targetRow]?.[targetCol]?.color === (color === 'white' ? 'black' : 'white')) {
-          moves.push({ row: targetRow, col: targetCol });
+            targetCol >= 0 && targetCol < BOARD_SIZE) {
+          const targetPiece = board[targetRow][targetCol];
+          if (targetPiece?.color === (color === 'white' ? 'black' : 'white')) {
+            moves.push({ row: targetRow, col: targetCol });
+          }
+          // En Passant
+          if (lastMove?.piece.type === PieceType.Pawn &&
+              Math.abs(lastMove.to.row - lastMove.from.row) === 2 &&
+              lastMove.to.row === row &&
+              lastMove.to.col === targetCol &&
+              lastMove.piece.canBeEnPassant) {
+            moves.push({ row: targetRow, col: targetCol });
+          }
         }
       });
       break;
@@ -194,6 +205,7 @@ const getBasicMoves = (
       break;
 
     case PieceType.King:
+      // Normal moves
       [[0, 1], [1, 0], [0, -1], [-1, 0],
        [1, 1], [1, -1], [-1, 1], [-1, -1]].forEach(([dRow, dCol]) => {
         const targetRow = row + dRow;
@@ -206,24 +218,52 @@ const getBasicMoves = (
           moves.push({ row: targetRow, col: targetCol });
         }
       });
+
+      // Castling
+      if (!piece.hasMoved) {
+        // Kingside castling
+        const kingsideRook = board[row][7];
+        if (kingsideRook?.type === PieceType.Rook && 
+            !kingsideRook.hasMoved &&
+            !board[row][5] && 
+            !board[row][6]) {
+          moves.push({ row, col: 6 });
+        }
+
+        // Queenside castling
+        const queensideRook = board[row][0];
+        if (queensideRook?.type === PieceType.Rook && 
+            !queensideRook.hasMoved &&
+            !board[row][1] && 
+            !board[row][2] && 
+            !board[row][3]) {
+          moves.push({ row, col: 2 });
+        }
+      }
       break;
   }
 
   return moves;
 };
 
-export const getPossibleMoves = (
+// Helper function to check if a position is under attack
+const isPositionUnderAttack = (
   board: (Piece | null)[][],
   position: Position,
-  piece: Piece,
-  moveHistory: Move[]
-): Position[] => {
-  const basicMoves = getBasicMoves(board, position, piece);
-  
-  // Filter out moves that would put own king in check
-  return basicMoves.filter(move => 
-    !wouldMoveExposeKing(board, position, move, piece)
-  );
+  attackingColor: Color
+): boolean => {
+  for (let row = 0; row < BOARD_SIZE; row++) {
+    for (let col = 0; col < BOARD_SIZE; col++) {
+      const piece = board[row][col];
+      if (piece && piece.color === attackingColor) {
+        const moves = getBasicMoves(board, { row, col }, piece);
+        if (moves.some(m => m.row === position.row && m.col === position.col)) {
+          return true;
+        }
+      }
+    }
+  }
+  return false;
 };
 
 export const isKingInCheck = (board: (Piece | null)[][], color: Color): boolean => {
@@ -242,22 +282,25 @@ export const isKingInCheck = (board: (Piece | null)[][], color: Color): boolean 
 
   if (!kingPosition) return false;
 
-  // Check if any opponent piece can attack the king
-  for (let row = 0; row < BOARD_SIZE; row++) {
-    for (let col = 0; col < BOARD_SIZE; col++) {
-      const piece = board[row][col];
-      if (piece && piece.color !== color) {
-        const moves = getBasicMoves(board, { row, col }, piece);
-        if (moves.some(move => 
-          move.row === kingPosition?.row && move.col === kingPosition?.col
-        )) {
-          return true;
-        }
-      }
-    }
-  }
+  // Check if king is under attack
+  return isPositionUnderAttack(board, kingPosition, color === 'white' ? 'black' : 'white');
+};
 
-  return false;
+export const getPossibleMoves = (
+  board: (Piece | null)[][],
+  position: Position,
+  piece: Piece,
+  moveHistory: Move[]
+): Position[] => {
+  const basicMoves = getBasicMoves(board, position, piece, moveHistory[moveHistory.length - 1]);
+  
+  // Filter out moves that would put own king in check
+  return basicMoves.filter(move => {
+    const tempBoard = board.map(row => [...row]);
+    tempBoard[move.row][move.col] = piece;
+    tempBoard[position.row][position.col] = null;
+    return !isKingInCheck(tempBoard, piece.color);
+  });
 };
 
 export const isCheckmate = (board: (Piece | null)[][], color: Color): boolean => {
@@ -275,4 +318,93 @@ export const isCheckmate = (board: (Piece | null)[][], color: Color): boolean =>
   }
 
   return true;
+};
+
+export const isStalemate = (board: (Piece | null)[][], color: Color): boolean => {
+  if (isKingInCheck(board, color)) return false;
+
+  // Check if any piece can make a legal move
+  for (let row = 0; row < BOARD_SIZE; row++) {
+    for (let col = 0; col < BOARD_SIZE; col++) {
+      const piece = board[row][col];
+      if (piece && piece.color === color) {
+        const moves = getPossibleMoves(board, { row, col }, piece, []);
+        if (moves.length > 0) return false;
+      }
+    }
+  }
+
+  return true;
+};
+
+export const isInsufficientMaterial = (board: (Piece | null)[][]): boolean => {
+  const pieces: Piece[] = [];
+  for (let row = 0; row < BOARD_SIZE; row++) {
+    for (let col = 0; col < BOARD_SIZE; col++) {
+      const piece = board[row][col];
+      if (piece) pieces.push(piece);
+    }
+  }
+
+  if (pieces.length === 2) return true; // King vs King
+  if (pieces.length === 3) {
+    const [king1, king2, piece] = pieces;
+    return piece.type === PieceType.Bishop || piece.type === PieceType.Knight;
+  }
+  return false;
+};
+
+export const generateSAN = (move: Move, board: (Piece | null)[][]): string => {
+  const { from, to, piece, capturedPiece, isCastling, isEnPassant } = move;
+  const file = String.fromCharCode(97 + from.col);
+  const rank = 8 - from.row;
+  const targetFile = String.fromCharCode(97 + to.col);
+  const targetRank = 8 - to.row;
+
+  // Castling
+  if (isCastling) {
+    return to.col > from.col ? 'O-O' : 'O-O-O';
+  }
+
+  // Pawn moves
+  if (piece.type === PieceType.Pawn) {
+    if (capturedPiece || isEnPassant) {
+      return `${file}x${targetFile}${targetRank}`;
+    }
+    return `${targetFile}${targetRank}`;
+  }
+
+  // Other pieces
+  const pieceSymbol = {
+    [PieceType.King]: 'K',
+    [PieceType.Queen]: 'Q',
+    [PieceType.Rook]: 'R',
+    [PieceType.Bishop]: 'B',
+    [PieceType.Knight]: 'N'
+  }[piece.type];
+
+  // Find if we need to specify file or rank
+  let needsFile = false;
+  let needsRank = false;
+  for (let r = 0; r < BOARD_SIZE; r++) {
+    for (let c = 0; c < BOARD_SIZE; c++) {
+      const p = board[r][c];
+      if (p && p.type === piece.type && p.color === piece.color &&
+          (r !== from.row || c !== from.col)) {
+        const moves = getBasicMoves(board, { row: r, col: c }, p);
+        if (moves.some(m => m.row === to.row && m.col === to.col)) {
+          if (c !== from.col) needsFile = true;
+          if (r !== from.row) needsRank = true;
+        }
+      }
+    }
+  }
+
+  let san = pieceSymbol;
+  if (needsFile) san += file;
+  if (needsRank) san += rank;
+  if (capturedPiece) san += 'x';
+  san += `${targetFile}${targetRank}`;
+
+  return san;
 }; 

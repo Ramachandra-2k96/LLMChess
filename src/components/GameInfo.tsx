@@ -102,10 +102,7 @@ const GameInfo: React.FC<GameInfoProps> = ({ moveHistory, capturedPieces, curren
               <div key={index} className={styles.move}>
                 {index % 2 === 0 && <span className={styles.moveNumber}>{Math.floor(index / 2) + 1}.</span>}
                 <span className={styles.moveNotation}>
-                  {getPieceSymbol(move.piece)}
-                  {move.capturedPiece ? 'x' : ''}
-                  {String.fromCharCode(97 + move.to.col)}
-                  {8 - move.to.row}
+                  {move.notation || `${getPieceSymbol(move.piece)}${move.capturedPiece ? 'x' : ''}${String.fromCharCode(97 + move.to.col)}${8 - move.to.row}`}
                 </span>
               </div>
             ))}
