@@ -1,47 +1,55 @@
 .gameContainer {
-  max-width: 1200px;
+  max-width: 1400px;
+  width: 100%;
   margin: 0 auto;
   padding: 2rem;
-  background-color: #1a1a1a;
-  border-radius: 12px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  background: rgba(26, 32, 44, 0.95);
+  border-radius: 20px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .gameInfo {
   text-align: center;
-  margin-bottom: 1.5rem;
+  margin-bottom: 2rem;
   color: #fff;
 }
 
 .gameInfo h2 {
   margin: 0;
-  font-size: 1.8rem;
-  color: #ecf0f1;
+  font-size: 2rem;
+  background: linear-gradient(to right, #4facfe 0%, #00f2fe 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
 }
 
 .checkWarning,
 .checkmateWarning {
-  margin: 0.5rem 0;
-  padding: 0.5rem 1rem;
-  border-radius: 4px;
+  margin: 1rem 0;
+  padding: 1rem 2rem;
+  border-radius: 12px;
   font-size: 1.2rem;
   animation: fadeIn 0.3s ease-in;
+  backdrop-filter: blur(4px);
 }
 
 .checkWarning {
-  background-color: rgba(255, 193, 7, 0.2);
-  color: #ffc107;
+  background: rgba(255, 193, 7, 0.15);
+  border: 1px solid rgba(255, 193, 7, 0.3);
+  color: #ffd700;
 }
 
 .checkmateWarning {
-  background-color: rgba(244, 67, 54, 0.2);
-  color: #f44336;
+  background: rgba(244, 67, 54, 0.15);
+  border: 1px solid rgba(244, 67, 54, 0.3);
+  color: #ff4444;
 }
 
 .gameLayout {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 300px;
-  gap: 2rem;
+  grid-template-columns: minmax(0, 1fr) 350px;
+  gap: 3rem;
   align-items: start;
 }
 
@@ -51,6 +59,11 @@
   margin: 0 auto;
   aspect-ratio: 1;
   position: relative;
+  background: rgba(0, 0, 0, 0.3);
+  padding: 1.5rem;
+  border-radius: 16px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .promotionDialog {
@@ -59,64 +72,67 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background-color: rgba(0, 0, 0, 0.8);
+  background: rgba(0, 0, 0, 0.85);
   display: flex;
   justify-content: center;
   align-items: center;
   z-index: 1000;
   animation: fadeIn 0.3s ease-out;
+  backdrop-filter: blur(8px);
 }
 
 .promotionOptions {
   background: linear-gradient(145deg, #2c3e50, #34495e);
-  padding: 1.5rem;
-  border-radius: 12px;
+  padding: 2rem;
+  border-radius: 16px;
   display: flex;
-  gap: 1rem;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-  border: 2px solid rgba(255, 255, 255, 0.1);
+  gap: 1.5rem;
+  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .promotionOption {
-  width: 80px;
-  height: 80px;
+  width: 90px;
+  height: 90px;
   border: none;
   background: linear-gradient(145deg, #3498db, #2980b9);
-  border-radius: 8px;
+  border-radius: 12px;
   cursor: pointer;
-  font-size: 3rem;
+  font-size: 3.5rem;
   display: flex;
   justify-content: center;
   align-items: center;
   color: white;
-  transition: all 0.3s ease;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
 }
 
 .promotionOption:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
-  background: linear-gradient(145deg, #3498db, #2980b9);
+  transform: translateY(-8px);
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.3);
+  background: linear-gradient(145deg, #4facfe, #00f2fe);
 }
 
 .promotionOption:active {
-  transform: translateY(0);
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
 }
 
 @keyframes fadeIn {
   from {
     opacity: 0;
+    transform: scale(0.95);
   }
   to {
     opacity: 1;
+    transform: scale(1);
   }
 }
 
-@media (max-width: 1024px) {
+@media (max-width: 1200px) {
   .gameLayout {
     grid-template-columns: 1fr;
-    gap: 1.5rem;
+    gap: 2rem;
   }
 
   .boardContainer {
@@ -127,16 +143,18 @@
 @media (max-width: 768px) {
   .gameContainer {
     padding: 1rem;
+    border-radius: 16px;
   }
 
   .boardContainer {
     max-width: 100%;
+    padding: 1rem;
   }
 
   .promotionOption {
-    width: 60px;
-    height: 60px;
-    font-size: 2.5rem;
+    width: 70px;
+    height: 70px;
+    font-size: 2.8rem;
   }
 }
 
@@ -146,8 +164,8 @@
   }
 
   .promotionOption {
-    width: 50px;
-    height: 50px;
-    font-size: 2rem;
+    width: 60px;
+    height: 60px;
+    font-size: 2.4rem;
   }
 } 

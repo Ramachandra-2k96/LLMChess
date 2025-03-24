@@ -1,26 +1,32 @@
 .main {
   min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
   padding: 2rem;
-  background-color: #121212;
-  color: #fff;
+  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
 }
 
 .title {
-  text-align: center;
-  font-size: 2.5rem;
+  font-size: 3rem;
+  font-weight: 700;
   margin-bottom: 1rem;
-  color: #ecf0f1;
-  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+  background: linear-gradient(to right, #4facfe 0%, #00f2fe 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  text-align: center;
 }
 
 .description {
-  text-align: center;
   font-size: 1.2rem;
-  color: #bdc3c7;
+  color: #a0aec0;
   margin-bottom: 2rem;
+  text-align: center;
+  max-width: 600px;
+  line-height: 1.6;
 }
 
-@media (max-width: 600px) {
+@media (max-width: 768px) {
   .main {
     padding: 1rem;
   }
