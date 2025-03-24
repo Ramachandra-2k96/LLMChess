@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { toast, Toaster } from 'react-hot-toast';
 import { GameState, Move, Position, Color, PieceType, Piece } from '../types/chess';
 import { 
   initializeBoard, 
@@ -172,6 +173,32 @@ const ChessGame: React.FC = () => {
     }
   }, [gameState.currentTurn, promotionChoice]);
 
+  // Add useEffect to show toast notifications when check or checkmate occurs
+  useEffect(() => {
+    if (gameState.isCheck && !gameState.isCheckmate) {
+      toast('Check!', {
+        icon: '⚠️',
+        style: {
+          background: '#ffd700',
+          color: '#000',
+          fontWeight: 'bold',
+        },
+        duration: 2000,
+      });
+    }
+    if (gameState.isCheckmate) {
+      toast('Checkmate!', {
+        icon: '👑',
+        style: {
+          background: '#ff4444',
+          color: '#fff',
+          fontWeight: 'bold',
+        },
+        duration: 3000,
+      });
+    }
+  }, [gameState.isCheck, gameState.isCheckmate]);
+
   const renderPromotionDialog = () => {
     if (!promotionChoice) return null;
 
@@ -201,11 +228,7 @@ const ChessGame: React.FC = () => {
 
   return (
     <div className={styles.gameContainer}>
-      <div className={styles.gameInfo}>
-        {gameState.isCheck && <h3 className={styles.checkWarning}>Check!</h3>}
-        {gameState.isCheckmate && <h3 className={styles.checkmateWarning}>Checkmate!</h3>}
-      </div>
-
+      <Toaster position="top-center" />
       <div className={styles.gameLayout}>
         <div className={styles.boardContainer}>
           <ChessBoard
