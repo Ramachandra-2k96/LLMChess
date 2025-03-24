@@ -1,0 +1,184 @@
+.gameInfo {
+  background: linear-gradient(145deg, #2c3e50, #34495e);
+  padding: 1.5rem;
+  border-radius: 12px;
+  color: white;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.currentTurn {
+  text-align: center;
+  font-size: 1.2rem;
+  font-weight: 600;
+  margin-bottom: 1.5rem;
+  padding: 1rem;
+  background: linear-gradient(145deg, #3498db, #2980b9);
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  animation: glow 2s infinite alternate;
+}
+
+.infoContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.capturedPieces {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.capturedSection {
+  background: rgba(52, 73, 94, 0.6);
+  padding: 1rem;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+}
+
+.capturedSection h3 {
+  margin: 0 0 0.8rem 0;
+  font-size: 1.1rem;
+  color: #ecf0f1;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.pieces {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.8rem;
+  align-items: center;
+  min-height: 40px;
+  padding: 0.5rem;
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 6px;
+}
+
+.piece {
+  font-size: 1.4rem;
+  transition: transform 0.2s;
+  cursor: default;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.piece:hover {
+  transform: scale(1.2);
+}
+
+.advantage {
+  margin-top: 0.5rem;
+  padding: 0.3rem 0.8rem;
+  background: rgba(46, 204, 113, 0.2);
+  color: #2ecc71;
+  border-radius: 4px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  display: inline-block;
+}
+
+.moveHistory {
+  background: rgba(52, 73, 94, 0.6);
+  padding: 1rem;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+}
+
+.moveHistory h3 {
+  margin: 0 0 0.8rem 0;
+  font-size: 1.1rem;
+  color: #ecf0f1;
+}
+
+.moves {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  max-height: 200px;
+  overflow-y: auto;
+  padding-right: 0.5rem;
+}
+
+.moves::-webkit-scrollbar {
+  width: 6px;
+}
+
+.moves::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.1);
+  border-radius: 3px;
+}
+
+.moves::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 3px;
+}
+
+.movePair {
+  display: flex;
+  gap: 1rem;
+  padding: 0.5rem;
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 4px;
+  font-family: monospace;
+}
+
+.moveNumber {
+  color: #95a5a6;
+  min-width: 24px;
+}
+
+.move {
+  color: #ecf0f1;
+}
+
+@keyframes glow {
+  from {
+    box-shadow: 0 4px 12px rgba(52, 152, 219, 0.2);
+  }
+  to {
+    box-shadow: 0 4px 20px rgba(52, 152, 219, 0.4);
+  }
+}
+
+@media (max-width: 800px) {
+  .gameInfo {
+    padding: 1rem;
+  }
+
+  .currentTurn {
+    font-size: 1.1rem;
+    padding: 0.8rem;
+  }
+
+  .piece {
+    font-size: 1.2rem;
+  }
+
+  .moves {
+    max-height: 150px;
+  }
+}
+
+@media (max-width: 600px) {
+  .gameInfo {
+    padding: 0.8rem;
+  }
+
+  .currentTurn {
+    font-size: 1rem;
+    padding: 0.6rem;
+  }
+
+  .piece {
+    font-size: 1.1rem;
+  }
+
+  .moves {
+    max-height: 120px;
+  }
+} 
