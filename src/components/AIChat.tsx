@@ -157,7 +157,7 @@ const AIChat: React.FC<AIChatProps> = ({ reasoning, isAIThinking }) => {
       {isOpen && (
         <div className={styles.chatBox}>
           <div className={styles.chatHeader}>
-            <h3>Chess Engine's Thoughts</h3>
+            <h3>Chess Engine&#39;s Thoughts</h3>
             <button className={styles.closeButton} onClick={toggleChat}>×</button>
           </div>
           <div className={styles.chatContent} ref={contentRef}>

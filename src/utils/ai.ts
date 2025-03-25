@@ -1,4 +1,4 @@
-import { Piece, Position, Move, GameState, PieceType, Color } from '../types/chess';
+import { Position, Move, GameState  } from '../types/chess';
 import { Chess, Square, PieceSymbol } from 'chess.js';
 import { ChatGroq } from '@langchain/groq';
 import { getPossibleMoves } from './chessLogic';

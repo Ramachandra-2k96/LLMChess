@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { toast, Toaster } from 'react-hot-toast';
-import { GameState, Move, Position, Color, PieceType, Piece } from '../types/chess';
+import { GameState, Move, Position, Color, PieceType } from '../types/chess';
 import { 
   initializeBoard, 
   isKingInCheck, 
@@ -14,7 +14,6 @@ import ChessBoard from './ChessBoard';
 import GameInfo from './GameInfo';
 import AIChat from './AIChat';
 import styles from '../styles/ChessGame.module.css';
-import chatStyles from '../styles/AIChat.module.css';
 
 const ChessGame: React.FC = () => {
   const [gameState, setGameState] = useState<GameState>({
@@ -368,18 +367,6 @@ const ChessGame: React.FC = () => {
       />
     </div>
   );
-};
-
-const getPieceSymbol = (type: PieceType, color: Color): string => {
-  const symbols: Record<PieceType, { white: string; black: string }> = {
-    [PieceType.King]: { white: '♔', black: '♚' },
-    [PieceType.Queen]: { white: '♕', black: '♛' },
-    [PieceType.Rook]: { white: '♖', black: '♜' },
-    [PieceType.Bishop]: { white: '♗', black: '♝' },
-    [PieceType.Knight]: { white: '♘', black: '♞' },
-    [PieceType.Pawn]: { white: '♙', black: '♟' }
-  };
-  return symbols[type][color];
 };
 
 export default ChessGame; 

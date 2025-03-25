@@ -31,46 +31,6 @@ export const initializeBoard = (): (Piece | null)[][] => {
   return board;
 };
 
-// Helper function to check if a move would put own king in check
-const wouldMoveExposeKing = (
-  board: (Piece | null)[][],
-  from: Position,
-  to: Position,
-  piece: Piece
-): boolean => {
-  const tempBoard = board.map(row => [...row]);
-  tempBoard[to.row][to.col] = piece;
-  tempBoard[from.row][from.col] = null;
-  
-  // Find king position
-  let kingRow = -1, kingCol = -1;
-  for (let r = 0; r < BOARD_SIZE; r++) {
-    for (let c = 0; c < BOARD_SIZE; c++) {
-      const p = tempBoard[r][c];
-      if (p?.type === PieceType.King && p.color === piece.color) {
-        kingRow = r;
-        kingCol = c;
-        break;
-      }
-    }
-    if (kingRow !== -1) break;
-  }
-
-  // Check if any opponent piece can attack the king
-  for (let r = 0; r < BOARD_SIZE; r++) {
-    for (let c = 0; c < BOARD_SIZE; c++) {
-      const p = tempBoard[r][c];
-      if (p && p.color !== piece.color) {
-        const moves = getBasicMoves(tempBoard, { row: r, col: c }, p);
-        if (moves.some(m => m.row === kingRow && m.col === kingCol)) {
-          return true;
-        }
-      }
-    }
-  }
-  return false;
-};
-
 // Get moves without checking for check
 const getBasicMoves = (
   board: (Piece | null)[][],
@@ -86,7 +46,6 @@ const getBasicMoves = (
     case PieceType.Pawn:
       const direction = color === 'white' ? -1 : 1;
       const startRow = color === 'white' ? 6 : 1;
-      const promotionRow = color === 'white' ? 0 : 7;
 
       // Forward move
       if (!board[row + direction]?.[col]) {
@@ -348,8 +307,7 @@ export const isInsufficientMaterial = (board: (Piece | null)[][]): boolean => {
 
   if (pieces.length === 2) return true; // King vs King
   if (pieces.length === 3) {
-    const [king1, king2, piece] = pieces;
-    return piece.type === PieceType.Bishop || piece.type === PieceType.Knight;
+    return pieces.some(p => p.type === PieceType.Bishop || p.type === PieceType.Knight);
   }
   return false;
 };

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import styles from '../styles/ChessBoard.module.css';
-import { Piece, PieceType, Position, Color, Move } from '../types/chess';
+import { Piece, PieceType, Position, Color } from '../types/chess';
 import { getPossibleMoves, isKingInCheck } from '../utils/chessLogic';
 
 const FILES = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'];
