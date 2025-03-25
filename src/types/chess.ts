@@ -38,6 +38,7 @@ export interface GameState {
   moveHistory: Move[];
   isCheck: boolean;
   isCheckmate: boolean;
+  isStalemate: boolean;
   possibleMoves: Position[];
   selectedPiece: Position | null;
   capturedPieces: {
@@ -48,6 +49,7 @@ export interface GameState {
   halfMoveClock: number;
   fullMoveNumber: number;
   lastAIReasoning?: string;
+  aiReasoning?: string[];
 }
 
 export interface BettingState {

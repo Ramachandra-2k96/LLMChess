@@ -12,7 +12,9 @@ import {
 import { getAIMove } from '../utils/ai';
 import ChessBoard from './ChessBoard';
 import GameInfo from './GameInfo';
+import AIChat from './AIChat';
 import styles from '../styles/ChessGame.module.css';
+import chatStyles from '../styles/AIChat.module.css';
 
 const ChessGame: React.FC = () => {
   const [gameState, setGameState] = useState<GameState>({
@@ -21,6 +23,7 @@ const ChessGame: React.FC = () => {
     moveHistory: [],
     isCheck: false,
     isCheckmate: false,
+    isStalemate: false,
     possibleMoves: [],
     selectedPiece: null,
     capturedPieces: {
@@ -29,7 +32,8 @@ const ChessGame: React.FC = () => {
     },
     halfMoveClock: 0,
     fullMoveNumber: 1,
-    lastAIReasoning: undefined
+    lastAIReasoning: undefined,
+    aiReasoning: []
   });
 
   const [promotionChoice, setPromotionChoice] = useState<{
@@ -193,17 +197,25 @@ const ChessGame: React.FC = () => {
             aiMoveResult = await getAIMove(gameState);
             
             if (!aiMoveResult?.move && attempts < 3) {
-              // Log retry attempt
               console.log(`Retry attempt ${attempts + 1}/3 for AI move`);
-              await new Promise(resolve => setTimeout(resolve, 1000)); // Wait 1 second between retries
+              await new Promise(resolve => setTimeout(resolve, 1000));
             }
           }
           
           // Dismiss loading indicator
           toast.dismiss(loadingToast);
           
-          // Update reasoning regardless of move
+          // Clear previous reasoning if the move failed
+          if (!aiMoveResult?.move) {
+            setGameState(prevState => ({
+              ...prevState,
+              lastAIReasoning: undefined
+            }));
+          }
+          
+          // Update reasoning if we have it, regardless of move success
           if (aiMoveResult?.reasoning) {
+            console.log("SAVING AI REASONING TO GAME STATE:", aiMoveResult.reasoning);
             setGameState(prevState => ({
               ...prevState,
               lastAIReasoning: aiMoveResult.reasoning
@@ -220,9 +232,13 @@ const ChessGame: React.FC = () => {
               },
             });
             
-            handleMove(aiMoveResult.move.from, aiMoveResult.move.to);
+            // Handle the move after a short delay to ensure reasoning is processed
+            const move = aiMoveResult.move;
+            setTimeout(() => {
+              handleMove(move.from, move.to);
+            }, 100);
           } else {
-            // If all attempts failed or game is over
+            // Handle failed move attempts
             if (gameState.isCheckmate) {
               toast.success('Checkmate! You win!', {
                 duration: 3000,
@@ -252,6 +268,12 @@ const ChessGame: React.FC = () => {
           }
         } catch (error) {
           console.error('Error making AI move:', error);
+          // Clear reasoning on error
+          setGameState(prevState => ({
+            ...prevState,
+            lastAIReasoning: undefined
+          }));
+          
           toast.error('Error connecting to AI service', {
             duration: 3000,
             style: {
@@ -337,6 +359,12 @@ const ChessGame: React.FC = () => {
         currentTurn={gameState.currentTurn}
         isAIThinking={isAIThinking}
         lastAIReasoning={gameState.lastAIReasoning}
+      />
+      
+      {/* AIChat for displaying chess engine's thoughts */}
+      <AIChat 
+        reasoning={gameState.lastAIReasoning}
+        isAIThinking={isAIThinking}
       />
     </div>
   );

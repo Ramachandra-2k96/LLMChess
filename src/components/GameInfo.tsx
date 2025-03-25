@@ -1,7 +1,6 @@
 import React from 'react';
 import { Move, Piece, Color, PieceType } from '../types/chess';
 import styles from '../styles/GameInfo.module.css';
-import AIReasoningDisplay from './AIReasoningDisplay';
 
 interface GameInfoProps {
   moveHistory: Move[];
@@ -14,7 +13,7 @@ interface GameInfoProps {
   lastAIReasoning?: string;
 }
 
-const GameInfo: React.FC<GameInfoProps> = ({ moveHistory, capturedPieces, currentTurn, isAIThinking = false, lastAIReasoning }) => {
+const GameInfo: React.FC<GameInfoProps> = ({ moveHistory, capturedPieces, currentTurn, isAIThinking = false }) => {
   const getPieceSymbol = (piece: Piece): string => {
     const symbols: Record<PieceType, { white: string; black: string }> = {
       [PieceType.King]: { white: '♔', black: '♚' },
@@ -57,8 +56,6 @@ const GameInfo: React.FC<GameInfoProps> = ({ moveHistory, capturedPieces, curren
 
   return (
     <div className={styles.gameInfo}>
-      {lastAIReasoning && <AIReasoningDisplay reasoning={lastAIReasoning} />}
-      
       <div className={styles.currentTurn}>
         <h3>
           Current Turn: {currentTurn === 'white' ? 'White' : 'Black'}
