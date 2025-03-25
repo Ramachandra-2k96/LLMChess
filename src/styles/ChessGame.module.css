@@ -1,13 +1,26 @@
 .gameContainer {
-  max-width: 1400px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
   width: 100%;
-  margin: 0 auto;
-  padding: 2rem;
-  background: rgba(26, 32, 44, 0.95);
-  border-radius: 20px;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-  backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  max-width: 1200px;
+  gap: 2rem;
+}
+
+.title {
+  color: #4facfe;
+  text-align: center;
+  font-size: 2.5rem;
+  margin-bottom: 0.5rem;
+  text-shadow: 0 2px 10px rgba(79, 172, 254, 0.5);
+}
+
+.subtitle {
+  text-align: center;
+  color: #fff;
+  margin-bottom: 2rem;
+  opacity: 0.8;
+  font-size: 1.1rem;
 }
 
 .gameInfo {
@@ -47,75 +60,136 @@
 }
 
 .gameLayout {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) 350px;
-  gap: 3rem;
-  align-items: start;
+  display: flex;
+  flex-direction: row;
+  gap: 2rem;
+  align-items: flex-start;
 }
 
-.boardContainer {
+.gameBoard {
   width: 100%;
   max-width: 800px;
-  margin: 0 auto;
-  aspect-ratio: 1;
   position: relative;
-  background: rgba(0, 0, 0, 0.3);
-  padding: 1.5rem;
-  border-radius: 16px;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
-  border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
-.promotionDialog {
+.promotionModal {
   position: fixed;
   top: 0;
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(0, 0, 0, 0.85);
+  background: rgba(0, 0, 0, 0.8);
   display: flex;
   justify-content: center;
   align-items: center;
-  z-index: 1000;
-  animation: fadeIn 0.3s ease-out;
-  backdrop-filter: blur(8px);
+  z-index: 100;
 }
 
 .promotionOptions {
-  background: linear-gradient(145deg, #2c3e50, #34495e);
+  background: rgba(44, 62, 80, 0.95);
   padding: 2rem;
   border-radius: 16px;
-  display: flex;
-  gap: 1.5rem;
-  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.4);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+  text-align: center;
+  border: 2px solid rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
 }
 
-.promotionOption {
-  width: 90px;
-  height: 90px;
+.promotionOptions h3 {
+  margin: 0 0 1.5rem 0;
+  color: white;
+  font-size: 1.5rem;
+}
+
+.options {
+  display: flex;
+  gap: 1rem;
+}
+
+.options button {
+  width: 3.5rem;
+  height: 3.5rem;
+  font-size: 2rem;
+  background: #2a4365;
+  color: white;
   border: none;
-  background: linear-gradient(145deg, #3498db, #2980b9);
-  border-radius: 12px;
+  border-radius: 8px;
   cursor: pointer;
-  font-size: 3.5rem;
+  transition: all 0.2s ease;
   display: flex;
   justify-content: center;
   align-items: center;
-  color: white;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
 }
 
-.promotionOption:hover {
-  transform: translateY(-8px);
-  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.3);
-  background: linear-gradient(145deg, #4facfe, #00f2fe);
+.options button:hover {
+  background: #3182ce;
+  transform: translateY(-4px);
 }
 
-.promotionOption:active {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+@media (min-width: 1200px) {
+  .gameLayout {
+    flex-direction: row;
+    justify-content: space-between;
+  }
+  
+  .boardContainer {
+    max-width: 800px;
+    flex: 1;
+  }
+}
+
+@media (max-width: 768px) {
+  .gameContainer {
+    gap: 1.5rem;
+  }
+  
+  .promotionOptions {
+    padding: 1.5rem;
+  }
+  
+  .promotionOptions h3 {
+    font-size: 1.3rem;
+    margin-bottom: 1.2rem;
+  }
+  
+  .options button {
+    width: 3rem;
+    height: 3rem;
+    font-size: 1.8rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .gameContainer {
+    gap: 1rem;
+  }
+  
+  .promotionOptions {
+    padding: 1.2rem;
+  }
+  
+  .promotionOptions h3 {
+    font-size: 1.1rem;
+    margin-bottom: 1rem;
+  }
+  
+  .options button {
+    width: 2.5rem;
+    height: 2.5rem;
+    font-size: 1.5rem;
+  }
+}
+
+@media (max-width: 360px) {
+  .options {
+    gap: 0.5rem;
+  }
+  
+  .options button {
+    width: 2.2rem;
+    height: 2.2rem;
+    font-size: 1.3rem;
+  }
 }
 
 @keyframes fadeIn {
@@ -126,46 +200,5 @@
   to {
     opacity: 1;
     transform: scale(1);
-  }
-}
-
-@media (max-width: 1200px) {
-  .gameLayout {
-    grid-template-columns: 1fr;
-    gap: 2rem;
-  }
-
-  .boardContainer {
-    max-width: 600px;
-  }
-}
-
-@media (max-width: 768px) {
-  .gameContainer {
-    padding: 1rem;
-    border-radius: 16px;
-  }
-
-  .boardContainer {
-    max-width: 100%;
-    padding: 1rem;
-  }
-
-  .promotionOption {
-    width: 70px;
-    height: 70px;
-    font-size: 2.8rem;
-  }
-}
-
-@media (max-width: 480px) {
-  .gameContainer {
-    padding: 0.5rem;
-  }
-
-  .promotionOption {
-    width: 60px;
-    height: 60px;
-    font-size: 2.4rem;
   }
 } 

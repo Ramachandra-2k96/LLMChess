@@ -28,13 +28,17 @@ const ChessGame: React.FC = () => {
       black: []
     },
     halfMoveClock: 0,
-    fullMoveNumber: 1
+    fullMoveNumber: 1,
+    lastAIReasoning: undefined
   });
 
   const [promotionChoice, setPromotionChoice] = useState<{
     position: Position;
     color: Color;
   } | null>(null);
+  
+  // Add state to track when AI is thinking
+  const [isAIThinking, setIsAIThinking] = useState(false);
 
   const handlePromotion = (pieceType: PieceType) => {
     if (!promotionChoice) return;
@@ -97,7 +101,8 @@ const ChessGame: React.FC = () => {
     if (isEnPassant) {
       const capturedPawnRow = from.row;
       const capturedPawnCol = to.col;
-      move.capturedPiece = newBoard[capturedPawnRow][capturedPawnCol];
+      const capturedPawnPiece = newBoard[capturedPawnRow][capturedPawnCol];
+      move.capturedPiece = capturedPawnPiece || undefined;
       newBoard[capturedPawnRow][capturedPawnCol] = null;
     }
 
@@ -166,10 +171,101 @@ const ChessGame: React.FC = () => {
   // Handle AI moves
   useEffect(() => {
     if (gameState.currentTurn === 'black' && !gameState.isCheckmate && !promotionChoice) {
-      const aiMove = getAIMove(gameState);
-      if (aiMove) {
-        handleMove(aiMove.from, aiMove.to);
-      }
+      const makeAIMove = async () => {
+        try {
+          // Set AI thinking state to true
+          setIsAIThinking(true);
+          
+          // Show loading indicator
+          const loadingToast = toast.loading('Chess engine is thinking...', {
+            style: {
+              background: '#333',
+              color: '#fff',
+            },
+          });
+          
+          // Try up to 3 times if the AI returns null
+          let aiMoveResult = null;
+          let attempts = 0;
+          
+          while (!aiMoveResult?.move && attempts < 3) {
+            attempts++;
+            aiMoveResult = await getAIMove(gameState);
+            
+            if (!aiMoveResult?.move && attempts < 3) {
+              // Log retry attempt
+              console.log(`Retry attempt ${attempts + 1}/3 for AI move`);
+              await new Promise(resolve => setTimeout(resolve, 1000)); // Wait 1 second between retries
+            }
+          }
+          
+          // Dismiss loading indicator
+          toast.dismiss(loadingToast);
+          
+          // Update reasoning regardless of move
+          if (aiMoveResult?.reasoning) {
+            setGameState(prevState => ({
+              ...prevState,
+              lastAIReasoning: aiMoveResult.reasoning
+            }));
+          }
+          
+          if (aiMoveResult?.move) {
+            // Show AI move notification
+            toast.success(`Chess engine moves!`, {
+              duration: 1500,
+              style: {
+                background: '#333',
+                color: '#fff',
+              },
+            });
+            
+            handleMove(aiMoveResult.move.from, aiMoveResult.move.to);
+          } else {
+            // If all attempts failed or game is over
+            if (gameState.isCheckmate) {
+              toast.success('Checkmate! You win!', {
+                duration: 3000,
+                style: {
+                  background: '#4CAF50',
+                  color: '#fff',
+                },
+              });
+            } else if (isStalemate(gameState.board, 'black')) {
+              toast.success('Stalemate! Game is a draw.', {
+                duration: 3000,
+                style: {
+                  background: '#2196F3',
+                  color: '#fff',
+                },
+              });
+            } else {
+              toast.error('Chess engine couldn\'t make a valid move', {
+                duration: 3000,
+                style: {
+                  background: '#d32f2f',
+                  color: '#fff',
+                },
+              });
+              console.error('AI failed to generate a valid move after 3 attempts');
+            }
+          }
+        } catch (error) {
+          console.error('Error making AI move:', error);
+          toast.error('Error connecting to AI service', {
+            duration: 3000,
+            style: {
+              background: '#d32f2f',
+              color: '#fff',
+            },
+          });
+        } finally {
+          // Always set AI thinking state to false when done
+          setIsAIThinking(false);
+        }
+      };
+      
+      makeAIMove();
     }
   }, [gameState.currentTurn, promotionChoice]);
 
@@ -199,53 +295,49 @@ const ChessGame: React.FC = () => {
     }
   }, [gameState.isCheck, gameState.isCheckmate]);
 
-  const renderPromotionDialog = () => {
-    if (!promotionChoice) return null;
-
-    const promotionPieces = [
-      PieceType.Queen,
-      PieceType.Rook,
-      PieceType.Bishop,
-      PieceType.Knight
-    ];
-
-    return (
-      <div className={styles.promotionDialog}>
-        <div className={styles.promotionOptions}>
-          {promotionPieces.map((pieceType) => (
-            <button
-              key={pieceType}
-              className={styles.promotionOption}
-              onClick={() => handlePromotion(pieceType)}
-            >
-              {getPieceSymbol(pieceType, promotionChoice.color)}
-            </button>
-          ))}
-        </div>
-      </div>
-    );
-  };
-
   return (
     <div className={styles.gameContainer}>
-      <Toaster position="top-center" />
-      <div className={styles.gameLayout}>
-        <div className={styles.boardContainer}>
-          <ChessBoard
-            board={gameState.board}
-            currentTurn={gameState.currentTurn}
-            onMove={handleMove}
-            isGameOver={gameState.isCheckmate}
-          />
-          {renderPromotionDialog()}
+      <Toaster />
+      
+      {promotionChoice && (
+        <div className={styles.promotionModal}>
+          <div className={styles.promotionOptions}>
+            <h3>Choose promotion piece:</h3>
+            <div className={styles.options}>
+              <button onClick={() => handlePromotion(PieceType.Queen)}>
+                {promotionChoice.color === 'white' ? '♕' : '♛'}
+              </button>
+              <button onClick={() => handlePromotion(PieceType.Rook)}>
+                {promotionChoice.color === 'white' ? '♖' : '♜'}
+              </button>
+              <button onClick={() => handlePromotion(PieceType.Bishop)}>
+                {promotionChoice.color === 'white' ? '♗' : '♝'}
+              </button>
+              <button onClick={() => handlePromotion(PieceType.Knight)}>
+                {promotionChoice.color === 'white' ? '♘' : '♞'}
+              </button>
+            </div>
+          </div>
         </div>
-
-        <GameInfo
-          moveHistory={gameState.moveHistory}
-          capturedPieces={gameState.capturedPieces}
-          currentTurn={gameState.currentTurn}
+      )}
+      
+      <div className={styles.gameBoard}>
+        <ChessBoard 
+          board={gameState.board} 
+          currentTurn={gameState.currentTurn} 
+          onMove={handleMove} 
+          isGameOver={gameState.isCheckmate} 
+          isAIThinking={isAIThinking}
         />
       </div>
+      
+      <GameInfo 
+        moveHistory={gameState.moveHistory}
+        capturedPieces={gameState.capturedPieces}
+        currentTurn={gameState.currentTurn}
+        isAIThinking={isAIThinking}
+        lastAIReasoning={gameState.lastAIReasoning}
+      />
     </div>
   );
 };

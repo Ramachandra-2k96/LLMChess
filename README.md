@@ -1,36 +1,55 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Chess Game with Llama 3.2 AI
 
-## Getting Started
+A chess game application built with Next.js, React, and TypeScript, featuring an intelligent opponent powered exclusively by Groq's Llama 3.2 vision model.
 
-First, run the development server:
+## Features
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+- Full chess game implementation with all standard rules
+- AI opponent powered by Llama 3.2 vision model via Groq API
+- Visual board representation with move highlighting
+- Move history and captured pieces tracking
+- Check and checkmate detection
+- Human player plays as White, Llama 3.2 plays as Black
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Setup
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+1. Clone the repository
+2. Install dependencies:
+   ```
+   npm install
+   ```
+3. Create a `.env.local` file in the root directory with your Groq API key:
+   ```
+   NEXT_PUBLIC_GROQ_API_KEY=your_api_key_here
+   ```
+   Get your Groq API key by signing up at [https://console.groq.com](https://console.groq.com)
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+4. Start the development server:
+   ```
+   npm run dev
+   ```
+   
+5. Open [http://localhost:3000](http://localhost:3000) in your browser to start playing!
 
-## Learn More
+## How it works
 
-To learn more about Next.js, take a look at the following resources:
+This chess game is a direct interface to Llama 3.2 - the LLM is responsible for all Black moves with no algorithmic fallbacks.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+The AI integration uses:
+- Groq API with the Llama 3.2 11B vision model
+- LangChain for prompt engineering and response processing
+- FEN notation to represent the chess board state
+- Structured output for move generation
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+When it's the AI's turn:
+1. The current board state is converted to FEN notation
+2. A list of all valid moves is generated
+3. The board state, previous move, and valid moves are sent to the Llama 3.2 model
+4. Llama 3.2 responds with its chosen move and reasoning in JSON format
+5. The move is validated and executed on the board
 
-## Deploy on Vercel
+This creates a genuine "Human vs. LLM" chess experience where you can test your skills against Llama 3.2's chess understanding.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## License
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+MIT

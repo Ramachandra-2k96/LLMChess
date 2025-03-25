@@ -8,8 +8,8 @@
   backdrop-filter: blur(10px);
   width: 100%;
   height: fit-content;
-  position: sticky;
-  top: 2rem;
+  position: relative;
+  margin-bottom: 3rem;
 }
 
 .currentTurn {
@@ -29,6 +29,19 @@
   margin: 0;
   font-size: 1.4rem;
   text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.thinking {
+  color: #f39c12;
+  font-weight: normal;
+  font-style: italic;
+  animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+  0% { opacity: 0.6; }
+  50% { opacity: 1; }
+  100% { opacity: 0.6; }
 }
 
 .infoContainer {
@@ -188,36 +201,195 @@
 
 .moveNotation {
   font-family: 'Roboto Mono', monospace;
+  padding: 0 0.5rem;
+}
+
+.moveNotation.white {
+  color: #ffffff;
+}
+
+.moveNotation.black {
+  color: #8b8b8b;
+}
+
+.aiReasoning {
+  background: rgba(41, 128, 185, 0.9);
+  padding: 1.5rem;
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  margin-top: 2rem;
+  box-shadow: 0 8px 32px rgba(41, 128, 185, 0.5);
+  border-left: 4px solid #3498db;
+  position: relative;
+  z-index: 10;
+  transition: all 0.3s ease;
+}
+
+.highlight {
+  animation: highlight 2s ease;
+}
+
+@keyframes highlight {
+  0% {
+    background: rgba(46, 204, 113, 0.9);
+    transform: scale(1);
+  }
+  50% {
+    background: rgba(46, 204, 113, 0.7);
+    transform: scale(1.02);
+  }
+  100% {
+    background: rgba(41, 128, 185, 0.9);
+    transform: scale(1);
+  }
+}
+
+.aiReasoning h3 {
+  margin: 0 0 1rem 0;
+  font-size: 1.2rem;
+  color: #ecf0f1;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.aiReasoning h3 svg {
+  color: #fff;
+}
+
+.reasoningContent {
+  padding: 1rem;
+  background: rgba(0, 0, 0, 0.3);
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  font-size: 1rem;
+  line-height: 1.5;
+  color: #fff;
+  font-weight: 500;
+}
+
+.reasoningContent p {
+  margin: 0.5rem 0;
+}
+
+.moveHighlight {
+  font-weight: 700;
+  font-size: 1.1rem;
   color: #4facfe;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  padding-bottom: 0.5rem;
+}
+
+.captureHighlight {
+  font-weight: 600;
+  color: #f39c12;
+}
+
+.reasoningHeader {
+  font-weight: 700;
+  color: #2ecc71;
+  margin-right: 0.5rem;
+}
+
+.noReasoning {
+  color: rgba(255, 255, 255, 0.4);
+  font-size: 0.9rem;
+  font-style: italic;
+  text-align: center;
+  width: 100%;
 }
 
 @media (max-width: 1200px) {
   .gameInfo {
-    position: static;
-    max-width: 600px;
-    margin: 0 auto;
+    position: relative;
+    max-width: 100%;
+    margin: 2rem auto;
+  }
+  
+  .gameLayout {
+    flex-direction: column;
   }
 }
 
 @media (max-width: 768px) {
   .gameInfo {
     padding: 1.5rem;
+    margin-bottom: 2rem;
   }
-
-  .currentTurn {
-    padding: 1rem;
-  }
-
+  
   .currentTurn h3 {
     font-size: 1.2rem;
   }
-
-  .piece {
-    font-size: 1.6rem;
+  
+  .capturedSection h3,
+  .moveHistory h3 {
+    font-size: 1rem;
   }
+  
+  .piece {
+    font-size: 1.5rem;
+  }
+  
+  .infoContainer {
+    gap: 1.5rem;
+  }
+}
 
-  .moves {
-    max-height: 250px;
+@media (max-width: 480px) {
+  .gameInfo {
+    padding: 1rem;
+    margin-bottom: 1.5rem;
+  }
+  
+  .currentTurn {
+    padding: 0.8rem;
+  }
+  
+  .currentTurn h3 {
+    font-size: 1.1rem;
+  }
+  
+  .capturedSection,
+  .moveHistory {
+    padding: 1rem;
+  }
+  
+  .capturedSection h3,
+  .moveHistory h3 {
+    font-size: 0.9rem;
+  }
+  
+  .piece {
+    font-size: 1.3rem;
+  }
+  
+  .infoContainer {
+    gap: 1rem;
+  }
+  
+  .aiReasoning {
+    padding: 1rem;
+  }
+}
+
+@media (max-width: 360px) {
+  .gameInfo {
+    padding: 0.8rem;
+  }
+  
+  .currentTurn {
+    padding: 0.6rem;
+  }
+  
+  .currentTurn h3 {
+    font-size: 1rem;
+  }
+  
+  .piece {
+    font-size: 1.1rem;
   }
 }
 

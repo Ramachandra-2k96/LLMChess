@@ -159,6 +159,7 @@
 @media (max-width: 768px) {
   .boardContainer {
     padding: 1rem;
+    max-width: 100%;
   }
 
   .piece {
@@ -167,11 +168,15 @@
 
   .rankLabel,
   .fileLabel {
-    font-size: 0.9rem;
+    font-size: 0.8rem;
   }
 
   .coordinates {
     gap: 4px;
+  }
+  
+  .board {
+    aspect-ratio: 1;
   }
 }
 
@@ -181,15 +186,34 @@
   }
 
   .piece {
-    font-size: calc(min(7vw, 2rem));
+    font-size: calc(min(8vw, 2rem));
   }
 
   .rankLabel,
   .fileLabel {
-    font-size: 0.8rem;
+    font-size: 0.7rem;
   }
 
   .coordinates {
     gap: 2px;
+  }
+  
+  .selected, .validMove, .check {
+    transform: scale(0.9);
+  }
+}
+
+@media (max-width: 360px) {
+  .boardContainer {
+    padding: 0.25rem;
+  }
+  
+  .piece {
+    font-size: calc(min(9vw, 1.8rem));
+  }
+  
+  .rankLabel,
+  .fileLabel {
+    font-size: 0.6rem;
   }
 } 

@@ -1,6 +1,7 @@
 import React from 'react';
 import { Move, Piece, Color, PieceType } from '../types/chess';
 import styles from '../styles/GameInfo.module.css';
+import AIReasoningDisplay from './AIReasoningDisplay';
 
 interface GameInfoProps {
   moveHistory: Move[];
@@ -9,9 +10,11 @@ interface GameInfoProps {
     black: Piece[];
   };
   currentTurn: Color;
+  isAIThinking?: boolean;
+  lastAIReasoning?: string;
 }
 
-const GameInfo: React.FC<GameInfoProps> = ({ moveHistory, capturedPieces, currentTurn }) => {
+const GameInfo: React.FC<GameInfoProps> = ({ moveHistory, capturedPieces, currentTurn, isAIThinking = false, lastAIReasoning }) => {
   const getPieceSymbol = (piece: Piece): string => {
     const symbols: Record<PieceType, { white: string; black: string }> = {
       [PieceType.King]: { white: '♔', black: '♚' },
@@ -54,14 +57,19 @@ const GameInfo: React.FC<GameInfoProps> = ({ moveHistory, capturedPieces, curren
 
   return (
     <div className={styles.gameInfo}>
+      {lastAIReasoning && <AIReasoningDisplay reasoning={lastAIReasoning} />}
+      
       <div className={styles.currentTurn}>
-        <h3>Current Turn: {currentTurn === 'white' ? 'White' : 'Black'}</h3>
+        <h3>
+          Current Turn: {currentTurn === 'white' ? 'White' : 'Black'}
+          {isAIThinking && <span className={styles.thinking}> (Thinking...)</span>}
+        </h3>
       </div>
       
       <div className={styles.infoContainer}>
         <div className={styles.capturedPieces}>
           <div className={styles.capturedSection}>
-            <h3>White Captured</h3>
+            <h3>WHITE CAPTURED</h3>
             <div className={styles.pieces}>
               {sortPieces(capturedPieces.white).map((piece, index) => (
                 <span key={index} className={`${styles.piece} ${styles.white}`} title={piece.type}>
@@ -78,7 +86,7 @@ const GameInfo: React.FC<GameInfoProps> = ({ moveHistory, capturedPieces, curren
           </div>
           
           <div className={styles.capturedSection}>
-            <h3>Black Captured</h3>
+            <h3>BLACK CAPTURED</h3>
             <div className={styles.pieces}>
               {sortPieces(capturedPieces.black).map((piece, index) => (
                 <span key={index} className={`${styles.piece} ${styles.black}`} title={piece.type}>
@@ -96,16 +104,36 @@ const GameInfo: React.FC<GameInfoProps> = ({ moveHistory, capturedPieces, curren
         </div>
 
         <div className={styles.moveHistory}>
-          <h3>Move History</h3>
+          <h3>MOVE HISTORY</h3>
           <div className={styles.moves}>
-            {moveHistory.map((move, index) => (
-              <div key={index} className={styles.move}>
-                {index % 2 === 0 && <span className={styles.moveNumber}>{Math.floor(index / 2) + 1}.</span>}
-                <span className={styles.moveNotation}>
-                  {move.notation || `${getPieceSymbol(move.piece)}${move.capturedPiece ? 'x' : ''}${String.fromCharCode(97 + move.to.col)}${8 - move.to.row}`}
-                </span>
-              </div>
-            ))}
+            {moveHistory.length === 0 && (
+              <span className={styles.emptyMessage}>No moves yet</span>
+            )}
+            {Array.from({ length: Math.ceil(moveHistory.length / 2) }).map((_, roundIndex) => {
+              const whiteMove = moveHistory[roundIndex * 2];
+              const blackMove = moveHistory[roundIndex * 2 + 1];
+              return (
+                <div key={roundIndex} className={styles.move}>
+                  <span className={styles.moveNumber}>{roundIndex + 1}.</span>
+                  {whiteMove && (
+                    <span className={`${styles.moveNotation} ${styles.white}`}>
+                      {getPieceSymbol(whiteMove.piece)}
+                      {whiteMove.capturedPiece ? 'x' : ''}
+                      {String.fromCharCode(97 + whiteMove.to.col)}
+                      {8 - whiteMove.to.row}
+                    </span>
+                  )}
+                  {blackMove && (
+                    <span className={`${styles.moveNotation} ${styles.black}`}>
+                      {getPieceSymbol(blackMove.piece)}
+                      {blackMove.capturedPiece ? 'x' : ''}
+                      {String.fromCharCode(97 + blackMove.to.col)}
+                      {8 - blackMove.to.row}
+                    </span>
+                  )}
+                </div>
+              );
+            })}
           </div>
         </div>
       </div>

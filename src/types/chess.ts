@@ -47,6 +47,7 @@ export interface GameState {
   lastMove?: Move;
   halfMoveClock: number;
   fullMoveNumber: number;
+  lastAIReasoning?: string;
 }
 
 export interface BettingState {

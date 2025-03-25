@@ -11,15 +11,18 @@ interface ChessBoardProps {
   currentTurn: Color;
   onMove: (from: Position, to: Position) => void;
   isGameOver: boolean;
+  isAIThinking?: boolean;
 }
 
-const ChessBoard: React.FC<ChessBoardProps> = ({ board, currentTurn, onMove, isGameOver }) => {
+const ChessBoard: React.FC<ChessBoardProps> = ({ board, currentTurn, onMove, isGameOver, isAIThinking = false }) => {
   const [selectedSquare, setSelectedSquare] = useState<Position | null>(null);
   const [validMoves, setValidMoves] = useState<Position[]>([]);
 
   const handleSquareClick = (row: number, col: number) => {
-    if (isGameOver) return;
-
+    // Prevent interaction if game is over or AI is thinking
+    if (isGameOver || isAIThinking) return;
+    
+    // Prevent selecting black pieces to move (but allow targeting them for capture)
     const clickedPiece = board[row][col];
     const position: Position = { row, col };
     
@@ -29,24 +32,25 @@ const ChessBoard: React.FC<ChessBoardProps> = ({ board, currentTurn, onMove, isG
       const isValidMove = validMoves.some(move => move.row === row && move.col === col);
       
       if (isValidMove) {
+        // Make the move (this can be a capture of a black piece)
         onMove(selectedSquare, position);
         setSelectedSquare(null);
         setValidMoves([]);
       } else {
-        // If clicking on a different piece of the same color, select that piece instead
-        if (clickedPiece?.color === currentTurn) {
+        // If clicking on another white piece when it's white's turn, select that piece instead
+        if (clickedPiece?.color === 'white' && currentTurn === 'white') {
           const moves = getPossibleMoves(board, position, clickedPiece, []);
           setSelectedSquare(position);
           setValidMoves(moves);
         } else {
-          // Deselect if clicking on an invalid square
+          // Deselect if clicking elsewhere
           setSelectedSquare(null);
           setValidMoves([]);
         }
       }
     } else {
-      // Select the piece if it's the current player's turn
-      if (clickedPiece?.color === currentTurn) {
+      // Initial selection - only allow selecting white pieces on white's turn
+      if (clickedPiece?.color === 'white' && currentTurn === 'white') {
         const moves = getPossibleMoves(board, position, clickedPiece, []);
         setSelectedSquare(position);
         setValidMoves(moves);
@@ -101,7 +105,7 @@ const ChessBoard: React.FC<ChessBoardProps> = ({ board, currentTurn, onMove, isG
                       <div
                         className={`${styles.piece} ${styles[piece.color]}`}
                       >
-                        {getPieceSymbol(piece.type)}
+                        {getPieceSymbol(piece.type, piece.color)}
                       </div>
                     )}
                     {isSquareSelected(rowIndex, colIndex) && (
@@ -130,16 +134,16 @@ const ChessBoard: React.FC<ChessBoardProps> = ({ board, currentTurn, onMove, isG
   );
 };
 
-const getPieceSymbol = (type: PieceType): string => {
-  switch (type) {
-    case PieceType.King: return '♔';
-    case PieceType.Queen: return '♕';
-    case PieceType.Rook: return '♖';
-    case PieceType.Bishop: return '♗';
-    case PieceType.Knight: return '♘';
-    case PieceType.Pawn: return '♙';
-    default: return '';
-  }
+const getPieceSymbol = (type: PieceType, color: Color = 'white'): string => {
+  const symbols: Record<PieceType, { white: string; black: string }> = {
+    [PieceType.King]: { white: '♔', black: '♚' },
+    [PieceType.Queen]: { white: '♕', black: '♛' },
+    [PieceType.Rook]: { white: '♖', black: '♜' },
+    [PieceType.Bishop]: { white: '♗', black: '♝' },
+    [PieceType.Knight]: { white: '♘', black: '♞' },
+    [PieceType.Pawn]: { white: '♙', black: '♟' }
+  };
+  return symbols[type][color];
 };
 
 export default ChessBoard; 
